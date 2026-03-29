@@ -1,12 +1,18 @@
-// PATH: types/product.ts
-
-export type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  tag: string;
-  productType: string;
-  image: string;
+export interface Product {
+  id: string;
   slug: string;
-};
+  name: string;
+  description: string;
+
+  price: number;
+  originalPrice?: number;
+
+  images: string[];
+
+  categorySlug: string;
+
+  isBestSeller?: boolean;   // 🔥 NEW
+  isActive: boolean;
+
+  createdAt: string;
+}

@@ -1,29 +1,48 @@
-import { getProducts } from "@/services/api/products";
+"use client";
 
-export default async function Page() {
-  const products = await getProducts();
+import { useEffect, useState } from "react";
+import { getCategories } from "@/services/api/categories";
+import { Category } from "@/types/category";
+
+export default function HomePage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>("best-sellers");
+
+  useEffect(() => {
+    async function loadCategories() {
+      const data = await getCategories();
+      setCategories(data);
+    }
+
+    loadCategories();
+  }, []);
 
   return (
-    <section className="px-4 py-12">
-      <div className="flex justify-between items-end mb-8">
-        <h2 className="text-xs tracking-[0.5em] uppercase text-white/30 font-bold">
-          Latest Drops
-        </h2>
+    <main className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Drop</h1>
+
+      {/* 🔥 CATEGORY TABS */}
+      <div className="flex gap-2 overflow-x-auto mb-4">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.slug)}
+            className={`px-4 py-2 rounded-full text-sm border transition whitespace-nowrap
+              ${activeCategory === cat.slug
+                ? "bg-black text-white"
+                : "bg-white text-black"
+              }
+            `}
+          >
+            {cat.name}
+          </button>
+        ))}
       </div>
 
-      {products.length === 0 ? (
-        <p className="text-center text-gray-400 mt-20">
-          No products yet 🚀
-        </p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product: any) => (
-            <div key={product.id} className="text-white">
-              {product.name}
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+      {/* 🔥 EMPTY STATE */}
+      <div className="mt-10 text-center text-gray-500">
+        Products coming soon...
+      </div>
+    </main>
   );
 }
