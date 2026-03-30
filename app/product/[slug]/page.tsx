@@ -403,42 +403,87 @@ export default function ProductDetailPage() {
             <div className="text-[13px] text-gray-600 leading-relaxed min-h-[120px]">
               {activeTab === "details" && (
                 <div>
-                  {product.categorySlug === "luxe-acid-wash" ? (
-                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
-                      <li>240 GSM super combed cotton</li>
-                      <li>Acid wash finish</li>
-                      <li>Drop shoulder oversized cut</li>
-                      <li>Unisex</li>
-                      <li>Lycra ribbed neck</li>
-                    </ul>
-                  ) : (
-                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
-                      <li>100% Cotton</li>
-                      <li>Oversized Fit</li>
-                      <li>Premium Screen Print</li>
-                    </ul>
-                  )}
+                  {(() => {
+                    // Use DB description if available
+                    const desc = product.description?.trim();
+                    if (desc) {
+                      const lines = desc
+                        .split(/[\n·•]/)
+                        .map((l) => l.replace(/^[\s•\-\*·]+/, "").trim())
+                        .filter(Boolean);
+                      if (lines.length > 1) {
+                        return (
+                          <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                            {lines.map((line, i) => (
+                              <li key={i}>{line}</li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return <p className="text-gray-500">{desc}</p>;
+                    }
+                    // Fallback: hardcoded per category
+                    if (product.categorySlug === "luxe-acid-wash") {
+                      return (
+                        <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                          <li>240 GSM super combed cotton</li>
+                          <li>Acid wash finish</li>
+                          <li>Drop shoulder oversized cut</li>
+                          <li>Unisex</li>
+                          <li>Lycra ribbed neck</li>
+                        </ul>
+                      );
+                    }
+                    return (
+                      <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                        <li>100% Cotton</li>
+                        <li>Oversized Fit</li>
+                        <li>Premium Screen Print</li>
+                      </ul>
+                    );
+                  })()}
                 </div>
               )}
               {activeTab === "washcare" && (
                 <div>
-                  {product.categorySlug === "luxe-acid-wash" ? (
-                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
-                      <li>Wash inside out in cold water (30°C max)</li>
-                      <li>Do not bleach or tumble dry</li>
-                      <li>Dry flat or hang dry — away from direct sunlight</li>
-                      <li>Iron inside out on low heat only</li>
-                      <li className="text-gray-400 italic">First wash may show slight colour variation — this is natural to the acid wash process</li>
-                    </ul>
-                  ) : (
-                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
-                      <li>Machine wash cold with like colours</li>
-                      <li>Do not bleach</li>
-                      <li>Tumble dry low</li>
-                      <li>Iron on low heat if needed</li>
-                      <li>Do not dry clean</li>
-                    </ul>
-                  )}
+                  {(() => {
+                    // Use DB washcare if available
+                    const wc = product.washcare?.trim();
+                    if (wc) {
+                      const lines = wc
+                        .split(/[\n·•]/)
+                        .map((l) => l.replace(/^[\s•\-\*·]+/, "").trim())
+                        .filter(Boolean);
+                      return (
+                        <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                          {lines.map((line, i) => (
+                            <li key={i}>{line}</li>
+                          ))}
+                        </ul>
+                      );
+                    }
+                    // Fallback: hardcoded per category
+                    if (product.categorySlug === "luxe-acid-wash") {
+                      return (
+                        <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                          <li>Wash inside out in cold water (30°C max)</li>
+                          <li>Do not bleach or tumble dry</li>
+                          <li>Dry flat or hang dry — away from direct sunlight</li>
+                          <li>Iron inside out on low heat only</li>
+                          <li className="text-gray-400 italic">First wash may show slight colour variation — this is natural to the acid wash process</li>
+                        </ul>
+                      );
+                    }
+                    return (
+                      <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                        <li>Machine wash cold with like colours</li>
+                        <li>Do not bleach</li>
+                        <li>Tumble dry low</li>
+                        <li>Iron on low heat if needed</li>
+                        <li>Do not dry clean</li>
+                      </ul>
+                    );
+                  })()}
                 </div>
               )}
               {activeTab === "shipping" && (

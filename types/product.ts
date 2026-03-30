@@ -11,8 +11,12 @@ export interface Product {
 
   categorySlug: string;
 
-  isBestSeller?: boolean;   // 🔥 NEW
+  isBestSeller?: boolean;
   isActive: boolean;
+
+  washcare?: string;
+  shipping?: string;
+  tags?: string[];
 
   createdAt: string;
 }
