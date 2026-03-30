@@ -333,11 +333,21 @@ export default function ProductDetailPage() {
               {activeTab === "details" && (
                 <div>
                   <p className="font-semibold text-black mb-2">Details</p>
-                  <ul className="list-disc pl-4 space-y-1 text-gray-500 mb-4">
-                    <li>100% Cotton</li>
-                    <li>Oversized Fit</li>
-                    <li>Premium Screen Print</li>
-                  </ul>
+                  {product.categorySlug === "luxe-acid-wash" ? (
+                    <ul className="list-disc pl-4 space-y-1 text-gray-500 mb-4">
+                      <li>240 GSM super combed cotton</li>
+                      <li>Acid wash finish</li>
+                      <li>Drop shoulder oversized cut</li>
+                      <li>Unisex</li>
+                      <li>Lycra ribbed neck</li>
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-4 space-y-1 text-gray-500 mb-4">
+                      <li>100% Cotton</li>
+                      <li>Oversized Fit</li>
+                      <li>Premium Screen Print</li>
+                    </ul>
+                  )}
                   {product.description && (
                     <>
                       <p className="font-semibold text-black mb-2">
@@ -349,29 +359,45 @@ export default function ProductDetailPage() {
                 </div>
               )}
               {activeTab === "washcare" && (
-                <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
-                  <li>Machine wash cold with like colours</li>
-                  <li>Do not bleach</li>
-                  <li>Tumble dry low</li>
-                  <li>Iron on low heat if needed</li>
-                  <li>Do not dry clean</li>
-                </ul>
+                <div>
+                  {product.categorySlug === "luxe-acid-wash" ? (
+                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                      <li>Wash inside out in cold water (30°C max)</li>
+                      <li>Do not bleach or tumble dry</li>
+                      <li>Dry flat or hang dry — away from direct sunlight</li>
+                      <li>Iron inside out on low heat only</li>
+                      <li className="text-gray-400 italic">First wash may show slight colour variation — this is natural to the acid wash process</li>
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
+                      <li>Machine wash cold with like colours</li>
+                      <li>Do not bleach</li>
+                      <li>Tumble dry low</li>
+                      <li>Iron on low heat if needed</li>
+                      <li>Do not dry clean</li>
+                    </ul>
+                  )}
+                </div>
               )}
               {activeTab === "shipping" && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <p className="font-semibold text-black mb-1">Delivery</p>
+                    <p className="font-semibold text-black mb-1">Dispatch</p>
                     <p className="text-gray-500">
-                      Standard delivery within 5–7 business days across India.
+                      Orders are processed and dispatched within <span className="font-medium text-gray-700">2–3 business days</span>. You'll receive a tracking link via email/SMS.
                     </p>
                   </div>
                   <div>
-                    <p className="font-semibold text-black mb-1">
-                      Returns & Exchange
-                    </p>
-                    <p className="text-gray-500">
-                      7-day easy returns. Exchange available for size issues.
-                    </p>
+                    <p className="font-semibold text-black mb-1">Estimated Delivery</p>
+                    <ul className="list-disc pl-4 space-y-1 text-gray-500">
+                      <li>Metro cities (Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Pune) — <span className="font-medium text-gray-700">2–5 days</span></li>
+                      <li>Tier 2 & Tier 3 cities — <span className="font-medium text-gray-700">3–7 days</span></li>
+                      <li>Remote pin codes via India Post — <span className="font-medium text-gray-700">5–15 working days</span></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-gray-500"><span className="font-medium text-gray-700">COD available</span> across most serviceable pin codes.</p>
+                    <p className="text-gray-500 mt-1">All orders are shipped free — no hidden charges at checkout.</p>
                   </div>
                 </div>
               )}
