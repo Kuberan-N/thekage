@@ -20,6 +20,7 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [imgError, setImgError] = useState<Record<number, boolean>>({});
   const [activeTab, setActiveTab] = useState<TabId>("details");
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -274,7 +275,10 @@ export default function ProductDetailPage() {
               <span className="text-[13px] font-semibold text-black uppercase tracking-wide">
                 Size
               </span>
-              <button className="text-[11px] text-gray-500 underline underline-offset-2 hover:text-black transition-colors">
+              <button
+                onClick={() => setSizeGuideOpen(true)}
+                className="text-[11px] text-gray-500 underline underline-offset-2 hover:text-black transition-colors"
+              >
                 Size Guide
               </button>
             </div>
@@ -294,6 +298,73 @@ export default function ProductDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* ─── Size Guide Modal ─── */}
+          {sizeGuideOpen && (
+            <div
+              className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+              onClick={() => setSizeGuideOpen(false)}
+            >
+              <div
+                className="bg-[#f7f4f0] rounded-2xl max-w-sm w-full p-6 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close */}
+                <button
+                  onClick={() => setSizeGuideOpen(false)}
+                  className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-500 hover:text-black transition-colors"
+                  aria-label="Close size guide"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </button>
+
+                {/* Title */}
+                <h3 className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-1">
+                  {product.categorySlug === "luxe-acid-wash" ? "Acid Washed" : "Oversized"}
+                </h3>
+                <p className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-5">
+                  Oversized Tee
+                </p>
+
+                <div className="flex justify-center mb-5">
+                  <span className="border border-black rounded-full px-5 py-1.5 text-[12px] font-semibold uppercase tracking-wide">
+                    Size Chart
+                  </span>
+                </div>
+
+                {/* Table */}
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr>
+                      <th className="py-2.5 px-3 text-left font-bold text-black border-b border-gray-300">Size</th>
+                      <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Chest</th>
+                      <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Length</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ["XS", "39", "27"],
+                      ["S", "41", "28"],
+                      ["M", "43", "29"],
+                      ["L", "45", "30"],
+                      ["XL", "47", "31"],
+                      ["2XL", "49", "32"],
+                    ].map(([size, chest, length]) => (
+                      <tr key={size} className="border-b border-gray-200 last:border-0">
+                        <td className="py-2.5 px-3 font-semibold text-black">{size}</td>
+                        <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{chest}</td>
+                        <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{length}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <p className="text-[10px] text-gray-400 text-right mt-3 italic">*All measurements are in inches.</p>
+              </div>
+            </div>
+          )}
 
           {/* ─── Actions ─── */}
           <div className="mt-8 flex flex-col gap-3">
