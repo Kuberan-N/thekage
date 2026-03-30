@@ -9,7 +9,6 @@ type Props = {
 };
 
 const COLLECTION_IMAGES: Record<string, string> = {
-  oversized: "/collection-oversized.png",
   "oversized-terry": "/collection-oversized.png",
   "luxe-acid-wash": "/collection-acidwash.png",
 };
