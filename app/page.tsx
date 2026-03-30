@@ -1,48 +1,163 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { getProducts } from "@/services/api/products";
 import { getCategories } from "@/services/api/categories";
-import { Category } from "@/types/category";
+import ProductCard from "@/components/ProductCard";
+import HeroSection from "@/components/HeroSection";
+import BestSellerScroll from "@/components/BestSellerScroll";
+import CollectionsGrid from "@/components/CollectionsGrid";
+import { type Product } from "@/types/product";
+import { type Category } from "@/types/category";
 
 export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
+  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>("best-sellers");
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(categoryParam || "all");
 
   useEffect(() => {
-    async function loadCategories() {
-      const data = await getCategories();
-      setCategories(data);
+    async function load() {
+      try {
+        const [productData, categoryData] = await Promise.all([
+          getProducts(),
+          getCategories(),
+        ]);
+        setProducts(productData || []);
+        setCategories(categoryData || []);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    loadCategories();
+    load();
   }, []);
 
+  // Sync category from URL param
+  useEffect(() => {
+    if (categoryParam) {
+      setActiveTab(categoryParam);
+      // Scroll to the shop section when arriving via collection link
+      const el = document.getElementById("shop");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [categoryParam]);
+
+  const tabs = useMemo(() => {
+    return [
+      { id: "all", label: "All" },
+      ...categories.map((cat) => ({
+        id: cat.slug,
+        label: cat.name,
+      })),
+    ];
+  }, [categories]);
+
+  const filteredProducts = useMemo(() => {
+    if (activeTab === "all") return products;
+    if (activeTab === "best-sellers")
+      return products.filter((p) => p.isBestSeller);
+    return products.filter((p) => p.categorySlug === activeTab);
+  }, [products, activeTab]);
+
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Drop</h1>
+    <>
+      {/* ─── Hero ─── */}
+      <HeroSection />
 
-      {/* 🔥 CATEGORY TABS */}
-      <div className="flex gap-2 overflow-x-auto mb-4">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.slug)}
-            className={`px-4 py-2 rounded-full text-sm border transition whitespace-nowrap
-              ${activeCategory === cat.slug
-                ? "bg-black text-white"
-                : "bg-white text-black"
-              }
-            `}
-          >
-            {cat.name}
-          </button>
-        ))}
-      </div>
+      {/* ─── Best Sellers Carousel ─── */}
+      {!isLoading && <BestSellerScroll products={products} />}
 
-      {/* 🔥 EMPTY STATE */}
-      <div className="mt-10 text-center text-gray-500">
-        Products coming soon...
-      </div>
-    </main>
+      {/* ─── Collections ─── */}
+      {!isLoading && <CollectionsGrid categories={categories} />}
+
+      {/* ─── All Products ─── */}
+      <section
+        id="shop"
+        className="px-4 md:px-8 pb-12 md:pb-20 max-w-screen-xl mx-auto"
+      >
+        <h2 className="text-[15px] md:text-lg font-bold tracking-tight text-black uppercase mb-5">
+          Latest Drops
+        </h2>
+
+        {/* Category Pills */}
+        {!isLoading && products.length > 0 && (
+          <div className="relative mb-6">
+            <div className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] gap-2 pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`whitespace-nowrap shrink-0 px-4 py-2 rounded-full text-[13px] font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-black text-white"
+                        : "bg-transparent text-gray-500 border border-gray-200 hover:border-gray-400 hover:text-black"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white pointer-events-none md:hidden" />
+          </div>
+        )}
+
+        {/* Grid */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-60">
+            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-lg font-medium text-gray-900 mb-1">
+              No products yet
+            </p>
+            <p className="text-sm text-gray-400 max-w-xs">
+              {activeTab === "all"
+                ? "New drops coming soon. Stay tuned."
+                : "Nothing here right now."}
+            </p>
+            {activeTab !== "all" && (
+              <button
+                onClick={() => setActiveTab("all")}
+                className="mt-5 px-5 py-2 bg-black text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors"
+              >
+                View all
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-6 md:gap-x-5 md:gap-y-8">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+    </>
   );
 }
