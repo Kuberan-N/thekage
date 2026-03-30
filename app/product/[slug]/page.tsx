@@ -310,7 +310,7 @@ export default function ProductDetailPage() {
             <div className="flex gap-6 border-b border-gray-100 mb-5">
               {(
                 [
-                  { id: "details" as TabId, label: "Details & Description" },
+                  { id: "details" as TabId, label: "Description" },
                   { id: "washcare" as TabId, label: "Washcare" },
                   { id: "shipping" as TabId, label: "Shipping" },
                 ] as const
@@ -332,9 +332,8 @@ export default function ProductDetailPage() {
             <div className="text-[13px] text-gray-600 leading-relaxed min-h-[120px]">
               {activeTab === "details" && (
                 <div>
-                  <p className="font-semibold text-black mb-2">Details</p>
                   {product.categorySlug === "luxe-acid-wash" ? (
-                    <ul className="list-disc pl-4 space-y-1 text-gray-500 mb-4">
+                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
                       <li>240 GSM super combed cotton</li>
                       <li>Acid wash finish</li>
                       <li>Drop shoulder oversized cut</li>
@@ -342,19 +341,11 @@ export default function ProductDetailPage() {
                       <li>Lycra ribbed neck</li>
                     </ul>
                   ) : (
-                    <ul className="list-disc pl-4 space-y-1 text-gray-500 mb-4">
+                    <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
                       <li>100% Cotton</li>
                       <li>Oversized Fit</li>
                       <li>Premium Screen Print</li>
                     </ul>
-                  )}
-                  {product.description && (
-                    <>
-                      <p className="font-semibold text-black mb-2">
-                        Description
-                      </p>
-                      <p className="text-gray-500">{product.description}</p>
-                    </>
                   )}
                 </div>
               )}
