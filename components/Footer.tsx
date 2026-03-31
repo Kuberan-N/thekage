@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 const footerLinks = {
   Shop: [
@@ -13,6 +14,7 @@ const footerLinks = {
     { label: "Contact Us", href: "/contact" },
     { label: "Shipping Policy", href: "/shipping-policy" },
     { label: "Refund Policy", href: "/refund-policy" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms & Conditions", href: "/terms" },
   ],
 };
@@ -24,9 +26,13 @@ export default function Footer() {
         <div className="grid grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2">
-            <h3 className="text-2xl font-black tracking-tight uppercase mb-3">
-              THE KAGE
-            </h3>
+            <Image
+              src="/logo.png"
+              alt="THE KAGE"
+              width={140}
+              height={40}
+              className="h-9 w-auto object-contain invert mb-3"
+            />
             <p className="text-[13px] text-gray-400 leading-relaxed max-w-sm">
               Premium anime-inspired streetwear. Oversized fits, acid-wash finishes, 
               and limited drops designed for the culture.

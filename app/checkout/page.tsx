@@ -88,6 +88,20 @@ export default function CheckoutPage() {
     totalAmount: cartTotal,
   };
 
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window !== "undefined" && window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleOnlinePayment = async () => {
     if (!isFormValid) {
       showToast("Please fill all fields correctly", "error");
@@ -96,6 +110,21 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
+      // 0. Ensure Razorpay script is loaded
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        showToast("Payment gateway failed to load. Please refresh and try again.", "error");
+        setIsProcessing(false);
+        return;
+      }
+
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        showToast("Payment configuration error. Please contact support.", "error");
+        setIsProcessing(false);
+        return;
+      }
+
       // 1. Create Razorpay order on server
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
@@ -108,11 +137,11 @@ export default function CheckoutPage() {
       });
 
       const order = await res.json();
-      if (!res.ok) throw new Error(order.error);
+      if (!res.ok) throw new Error(order.error || "Failed to create order");
 
       // 2. Open Razorpay checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: order.amount,
         currency: order.currency,
         name: "THE KAGE",
@@ -160,10 +189,15 @@ export default function CheckoutPage() {
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", () => {
+        showToast("Payment failed. Please try again.", "error");
+        setIsProcessing(false);
+      });
       rzp.open();
     } catch (error) {
       console.error("Checkout error:", error);
-      showToast("Failed to initiate payment", "error");
+      const errorMessage = error instanceof Error ? error.message : "Failed to initiate payment";
+      showToast(errorMessage, "error");
       setIsProcessing(false);
     }
   };

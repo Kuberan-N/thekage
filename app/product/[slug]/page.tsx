@@ -388,43 +388,81 @@ export default function ProductDetailPage() {
                     <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </button>
-                <h3 className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-1">
-                  {product.categorySlug === "luxe-acid-wash" ? "Acid Washed" : "Oversized"}
-                </h3>
-                <p className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-5">
-                  Oversized Tee
-                </p>
-                <div className="flex justify-center mb-5">
-                  <span className="border border-black rounded-full px-5 py-1.5 text-[12px] font-semibold uppercase tracking-wide">
-                    Size Chart
-                  </span>
-                </div>
-                <table className="w-full text-[13px]">
-                  <thead>
-                    <tr>
-                      <th className="py-2.5 px-3 text-left font-bold text-black border-b border-gray-300">Size</th>
-                      <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Chest</th>
-                      <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Length</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      ["XS", "39", "27"],
-                      ["S", "41", "28"],
-                      ["M", "43", "29"],
-                      ["L", "45", "30"],
-                      ["XL", "47", "31"],
-                      ["2XL", "49", "32"],
-                    ].map(([size, chest, length]) => (
-                      <tr key={size} className="border-b border-gray-200 last:border-0">
-                        <td className="py-2.5 px-3 font-semibold text-black">{size}</td>
-                        <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{chest}</td>
-                        <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{length}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <p className="text-[10px] text-gray-400 text-right mt-3 italic">*All measurements are in inches.</p>
+                {(() => {
+                  const isTerry = product.categorySlug === "oversized-terry";
+                  const isAcidWash = product.categorySlug === "luxe-acid-wash";
+
+                  const title = isTerry
+                    ? "Terry Oversized"
+                    : isAcidWash
+                    ? "Acid Washed"
+                    : "Oversized";
+
+                  const subtitle = isTerry ? "T-Shirt" : "Oversized Tee";
+
+                  const sizeData = isTerry
+                    ? [
+                        ["XS", "39", "26"],
+                        ["S", "41", "27"],
+                        ["M", "43", "28"],
+                        ["L", "45", "29"],
+                        ["XL", "47", "30"],
+                        ["2XL", "49", "31"],
+                        ["3XL", "51", "32"],
+                      ]
+                    : isAcidWash
+                    ? [
+                        ["XS", "39", "27"],
+                        ["S", "41", "28"],
+                        ["M", "43", "29"],
+                        ["L", "45", "30"],
+                        ["XL", "47", "31"],
+                        ["2XL", "49", "32"],
+                      ]
+                    : [
+                        ["XS", "39", "27"],
+                        ["S", "41", "28"],
+                        ["M", "43", "29"],
+                        ["L", "45", "30"],
+                        ["XL", "47", "31"],
+                        ["2XL", "49", "32"],
+                      ];
+
+                  return (
+                    <>
+                      <h3 className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-1">
+                        {title}
+                      </h3>
+                      <p className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-5">
+                        {subtitle}
+                      </p>
+                      <div className="flex justify-center mb-5">
+                        <span className="border border-black rounded-full px-5 py-1.5 text-[12px] font-semibold uppercase tracking-wide">
+                          Size Chart
+                        </span>
+                      </div>
+                      <table className="w-full text-[13px]">
+                        <thead>
+                          <tr>
+                            <th className="py-2.5 px-3 text-left font-bold text-black border-b border-gray-300">Size</th>
+                            <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Chest</th>
+                            <th className="py-2.5 px-3 text-center font-bold text-black bg-[#f0cdb8]/40 border-b border-gray-300">Length</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sizeData.map(([size, chest, length]) => (
+                            <tr key={size} className="border-b border-gray-200 last:border-0">
+                              <td className="py-2.5 px-3 font-semibold text-black">{size}</td>
+                              <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{chest}</td>
+                              <td className="py-2.5 px-3 text-center text-gray-600 bg-[#f0cdb8]/20">{length}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <p className="text-[10px] text-gray-400 text-right mt-3 italic">*All measurements are in inches.</p>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           )}

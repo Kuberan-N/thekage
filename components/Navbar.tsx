@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -36,14 +37,14 @@ export default function Navbar() {
 
           {/* Center: Brand Logo */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            <div className="flex flex-col items-center leading-none">
-              <span className="font-black text-[20px] tracking-[0.08em] uppercase" style={{ fontFamily: "var(--font-outfit), sans-serif" }}>
-                THE KAGE
-              </span>
-              <span className="text-[7px] tracking-[0.35em] uppercase text-gray-400 font-medium mt-[-1px]">
-                STREETWEAR
-              </span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="THE KAGE"
+              width={140}
+              height={40}
+              className="h-9 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Right Icons */}
@@ -101,10 +102,13 @@ export default function Navbar() {
       {menuOpen && (
         <div className="fixed inset-0 z-[100] bg-white flex flex-col">
           <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100">
-            <div className="flex flex-col leading-none">
-              <span className="font-black text-lg tracking-[0.08em] uppercase">THE KAGE</span>
-              <span className="text-[7px] tracking-[0.35em] uppercase text-gray-400 font-medium mt-[-1px]">STREETWEAR</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="THE KAGE"
+              width={120}
+              height={34}
+              className="h-8 w-auto object-contain"
+            />
             <button
               onClick={() => setMenuOpen(false)}
               className="w-9 h-9 flex items-center justify-center hover:opacity-60 transition-opacity"

@@ -32,10 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} h-full antialiased`}>
-      <head>
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
-      </head>
-      <body className="min-h-full flex flex-col bg-white text-gray-900 font-sans">
+    <body className="min-h-full flex flex-col bg-white text-gray-900 font-sans">
         <Providers>
           <AnnouncementBar />
           <Navbar />
