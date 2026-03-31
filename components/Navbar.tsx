@@ -2,13 +2,26 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
+
+  const menuItems = [
+    { label: "Shop All", href: "/#shop" },
+    { label: "Best Sellers", href: "/category/best-sellers" },
+    { label: "Oversized Terry", href: "/category/oversized-terry" },
+    { label: "Acid Wash", href: "/category/luxe-acid-wash" },
+    { label: "Shipping Policy", href: "/shipping-policy" },
+    { label: "Contact", href: "/contact" },
+  ];
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <header className="fixed top-8 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="flex items-center justify-between px-4 h-14 max-w-screen-xl mx-auto">
           {/* Left: Hamburger */}
           <button
@@ -21,11 +34,16 @@ export default function Navbar() {
             </svg>
           </button>
 
-          {/* Center: Brand */}
+          {/* Center: Brand Logo */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            <span className="font-black text-lg tracking-tight uppercase">
-              THE KAGE
-            </span>
+            <div className="flex flex-col items-center leading-none">
+              <span className="font-black text-[20px] tracking-[0.08em] uppercase" style={{ fontFamily: "var(--font-outfit), sans-serif" }}>
+                THE KAGE
+              </span>
+              <span className="text-[7px] tracking-[0.35em] uppercase text-gray-400 font-medium mt-[-1px]">
+                STREETWEAR
+              </span>
+            </div>
           </Link>
 
           {/* Right Icons */}
@@ -45,12 +63,17 @@ export default function Navbar() {
             {/* Wishlist — hidden on mobile, shown at md+ */}
             <Link
               href="/wishlist"
-              className="hidden md:flex items-center justify-center w-9 h-9 hover:opacity-60 transition-opacity"
+              className="hidden md:flex items-center justify-center w-9 h-9 hover:opacity-60 transition-opacity relative"
               aria-label="Wishlist"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" />
               </svg>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-black text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
             {/* Cart */}
@@ -64,6 +87,11 @@ export default function Navbar() {
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 01-8 0" />
               </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-black text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -73,7 +101,10 @@ export default function Navbar() {
       {menuOpen && (
         <div className="fixed inset-0 z-[100] bg-white flex flex-col">
           <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100">
-            <span className="font-black text-lg tracking-tight uppercase">THE KAGE</span>
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-lg tracking-[0.08em] uppercase">THE KAGE</span>
+              <span className="text-[7px] tracking-[0.35em] uppercase text-gray-400 font-medium mt-[-1px]">STREETWEAR</span>
+            </div>
             <button
               onClick={() => setMenuOpen(false)}
               className="w-9 h-9 flex items-center justify-center hover:opacity-60 transition-opacity"
@@ -85,19 +116,19 @@ export default function Navbar() {
             </button>
           </div>
           <nav className="flex flex-col px-6 pt-8 gap-6">
-            {["Shop", "Latest Drop", "Bestsellers", "T-Shirts", "Hoodies", "About"].map((item) => (
+            {menuItems.map((item) => (
               <Link
-                key={item}
-                href="/"
+                key={item.label}
+                href={item.href}
                 onClick={() => setMenuOpen(false)}
                 className="text-2xl font-semibold tracking-tight hover:opacity-50 transition-opacity"
               >
-                {item}
+                {item.label}
               </Link>
             ))}
           </nav>
           <div className="mt-auto px-6 pb-10 flex gap-6">
-            {["Instagram", "WhatsApp", "YouTube"].map((s) => (
+            {["Instagram", "WhatsApp"].map((s) => (
               <a key={s} href="#" className="text-[10px] text-gray-400 hover:text-black transition-colors uppercase tracking-[0.15em]">
                 {s}
               </a>
@@ -106,8 +137,8 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Spacer for fixed header */}
-      <div className="h-14" />
+      {/* Spacer for fixed header (announcement bar 32px + navbar 56px) */}
+      <div className="h-[86px]" />
     </>
   );
 }

@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
 
   const navItems = [
     {
@@ -30,8 +34,9 @@ export default function BottomNav() {
     {
       href: "/wishlist",
       label: "Wishlist",
+      badge: wishlistCount,
       icon: (active: boolean) => (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#000" : "#999"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill={wishlistCount > 0 ? "#000" : "none"} stroke={active ? "#000" : "#999"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" />
         </svg>
       ),
@@ -39,6 +44,7 @@ export default function BottomNav() {
     {
       href: "/cart",
       label: "Cart",
+      badge: cartCount,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#000" : "#999"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -66,15 +72,22 @@ export default function BottomNav() {
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
         <div className="flex items-center justify-around px-1 pt-2 pb-[env(safe-area-inset-bottom,8px)]">
-          {navItems.map(({ href, label, icon }) => {
+          {navItems.map(({ href, label, icon, badge }) => {
             const active = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
-                className="flex flex-col items-center gap-0.5 min-w-[48px] py-1 touch-manipulation"
+                className="flex flex-col items-center gap-0.5 min-w-[48px] py-1 touch-manipulation relative"
               >
-                {icon(active)}
+                <div className="relative">
+                  {icon(active)}
+                  {typeof badge === "number" && badge > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-black text-white text-[8px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
+                      {badge > 9 ? "9+" : badge}
+                    </span>
+                  )}
+                </div>
                 <span
                   className={`text-[9px] tracking-wide uppercase font-medium ${active ? "text-black" : "text-gray-400"}`}
                 >

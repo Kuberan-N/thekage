@@ -1,8 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
 import { useEffect, useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import { getProducts } from "@/services/api/products";
 import { getCategories } from "@/services/api/categories";
 import ProductCard from "@/components/ProductCard";
@@ -13,27 +11,10 @@ import { type Product } from "@/types/product";
 import { type Category } from "@/types/category";
 
 export default function HomePage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
-      <HomeContent />
-    </Suspense>
-  );
-}
-
-function HomeContent() {
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category");
-
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(categoryParam || "all");
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     async function load() {
@@ -53,16 +34,6 @@ function HomeContent() {
 
     load();
   }, []);
-
-  // Sync category from URL param
-  useEffect(() => {
-    if (categoryParam) {
-      setActiveTab(categoryParam);
-      // Scroll to the shop section when arriving via collection link
-      const el = document.getElementById("shop");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [categoryParam]);
 
   const tabs = useMemo(() => {
     return [

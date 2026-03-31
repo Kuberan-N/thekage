@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getProductBySlug, getProducts } from "@/services/api/products";
 import { type Product } from "@/types/product";
+import { useCart } from "@/context/CartContext";
+import { useWishlist, type WishlistItem } from "@/context/WishlistContext";
+import { useToast } from "@/components/Toast";
 
 const SIZES = ["S", "M", "L", "XL", "XXL"];
 
@@ -13,6 +16,7 @@ type TabId = "details" | "washcare" | "shipping";
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +25,11 @@ export default function ProductDetailPage() {
   const [imgError, setImgError] = useState<Record<number, boolean>>({});
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [sizeError, setSizeError] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const { addToCart } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function load() {
@@ -32,7 +40,6 @@ export default function ProductDetailPage() {
         ]);
         setProduct(productData);
 
-        // Related = same category, exclude current, limit 8
         if (productData && allProducts) {
           const filtered = allProducts
             .filter(
@@ -41,7 +48,6 @@ export default function ProductDetailPage() {
                 p.categorySlug === productData.categorySlug
             )
             .slice(0, 8);
-          // Fallback to any other products if same-category is empty
           setRelated(
             filtered.length > 0
               ? filtered
@@ -60,7 +66,6 @@ export default function ProductDetailPage() {
     if (slug) load();
   }, [slug]);
 
-  // Scroll gallery to active image
   useEffect(() => {
     if (galleryRef.current) {
       const scrollTarget = galleryRef.current.children[activeImage] as HTMLElement;
@@ -80,6 +85,67 @@ export default function ProductDetailPage() {
       currency: "INR",
       minimumFractionDigits: 0,
     }).format(amount);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (!selectedSize) {
+      setSizeError(true);
+      showToast("Please select a size", "error");
+      return;
+    }
+    setSizeError(false);
+    const imageUrl = Array.isArray(product.images) && product.images[0] ? product.images[0] : "";
+    addToCart({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: imageUrl,
+      size: selectedSize,
+      quantity: 1,
+    });
+    showToast(`Added to bag — Size ${selectedSize}`);
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    if (!selectedSize) {
+      setSizeError(true);
+      showToast("Please select a size", "error");
+      return;
+    }
+    setSizeError(false);
+    const imageUrl = Array.isArray(product.images) && product.images[0] ? product.images[0] : "";
+    addToCart({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: imageUrl,
+      size: selectedSize,
+      quantity: 1,
+    });
+    router.push("/checkout");
+  };
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    const imageUrl = Array.isArray(product.images) && product.images[0] ? product.images[0] : "";
+    const item: WishlistItem = {
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: imageUrl,
+      categorySlug: product.categorySlug,
+      isBestSeller: product.isBestSeller,
+    };
+    toggleWishlist(item);
+    showToast(isWishlisted(product.id) ? "Removed from wishlist" : "Added to wishlist");
+  };
 
   // ─── Loading ───
   if (isLoading) {
@@ -123,6 +189,8 @@ export default function ProductDetailPage() {
         )
       : 0;
 
+  const wishlisted = isWishlisted(product.id);
+
   return (
     <div className="pb-28 md:pb-16">
       {/* ─── Breadcrumb ─── */}
@@ -140,7 +208,7 @@ export default function ProductDetailPage() {
 
       <div className="max-w-screen-xl mx-auto md:px-8 md:grid md:grid-cols-[1fr_420px] md:gap-10 lg:gap-16">
         {/* ─── Image Gallery ─── */}
-        <div className="md:sticky md:top-20 md:self-start">
+        <div className="md:sticky md:top-28 md:self-start">
           {/* Mobile: Horizontal Scroll */}
           <div
             ref={galleryRef}
@@ -272,8 +340,8 @@ export default function ProductDetailPage() {
           {/* ─── Size Selector ─── */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-semibold text-black uppercase tracking-wide">
-                Size
+              <span className={`text-[13px] font-semibold uppercase tracking-wide ${sizeError ? "text-red-500" : "text-black"}`}>
+                {sizeError ? "Please Select a Size" : "Size"}
               </span>
               <button
                 onClick={() => setSizeGuideOpen(true)}
@@ -286,10 +354,12 @@ export default function ProductDetailPage() {
               {SIZES.map((size) => (
                 <button
                   key={size}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => { setSelectedSize(size); setSizeError(false); }}
                   className={`min-w-[52px] h-11 px-4 rounded-full text-[13px] font-medium transition-all duration-150 ${
                     selectedSize === size
                       ? "bg-black text-white"
+                      : sizeError
+                      ? "bg-white text-black border border-red-300 hover:border-black"
                       : "bg-white text-black border border-gray-200 hover:border-black"
                   }`}
                 >
@@ -309,7 +379,6 @@ export default function ProductDetailPage() {
                 className="bg-[#f7f4f0] rounded-2xl max-w-sm w-full p-6 relative"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close */}
                 <button
                   onClick={() => setSizeGuideOpen(false)}
                   className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-500 hover:text-black transition-colors"
@@ -319,22 +388,17 @@ export default function ProductDetailPage() {
                     <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </button>
-
-                {/* Title */}
                 <h3 className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-1">
                   {product.categorySlug === "luxe-acid-wash" ? "Acid Washed" : "Oversized"}
                 </h3>
                 <p className="text-center font-bold text-xl md:text-2xl uppercase tracking-tight text-black mb-5">
                   Oversized Tee
                 </p>
-
                 <div className="flex justify-center mb-5">
                   <span className="border border-black rounded-full px-5 py-1.5 text-[12px] font-semibold uppercase tracking-wide">
                     Size Chart
                   </span>
                 </div>
-
-                {/* Table */}
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr>
@@ -360,7 +424,6 @@ export default function ProductDetailPage() {
                     ))}
                   </tbody>
                 </table>
-
                 <p className="text-[10px] text-gray-400 text-right mt-3 italic">*All measurements are in inches.</p>
               </div>
             </div>
@@ -368,11 +431,33 @@ export default function ProductDetailPage() {
 
           {/* ─── Actions ─── */}
           <div className="mt-8 flex flex-col gap-3">
-            <button className="w-full h-[52px] bg-black text-white text-[13px] font-bold tracking-[0.1em] uppercase rounded-full hover:bg-gray-900 transition-colors active:scale-[0.98]">
+            <button
+              onClick={handleBuyNow}
+              className="w-full h-[52px] bg-black text-white text-[13px] font-bold tracking-[0.1em] uppercase rounded-full hover:bg-gray-900 transition-colors active:scale-[0.98]"
+            >
               Buy Now
             </button>
-            <button className="w-full h-[52px] bg-white text-black text-[13px] font-bold tracking-[0.1em] uppercase rounded-full border border-black hover:bg-gray-50 transition-colors active:scale-[0.98]">
+            <button
+              onClick={handleAddToCart}
+              className="w-full h-[52px] bg-white text-black text-[13px] font-bold tracking-[0.1em] uppercase rounded-full border border-black hover:bg-gray-50 transition-colors active:scale-[0.98]"
+            >
               Add to Bag
+            </button>
+            <button
+              onClick={handleToggleWishlist}
+              className="w-full h-[44px] flex items-center justify-center gap-2 text-[12px] font-medium text-gray-500 hover:text-black transition-colors"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill={wishlisted ? "#000" : "none"}
+                stroke={wishlisted ? "#000" : "currentColor"}
+                strokeWidth="2"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" />
+              </svg>
+              {wishlisted ? "Saved to Wishlist" : "Add to Wishlist"}
             </button>
           </div>
 
@@ -404,7 +489,6 @@ export default function ProductDetailPage() {
               {activeTab === "details" && (
                 <div>
                   {(() => {
-                    // Use DB description if available
                     const desc = product.description?.trim();
                     if (desc) {
                       const lines = desc
@@ -422,7 +506,6 @@ export default function ProductDetailPage() {
                       }
                       return <p className="text-gray-500">{desc}</p>;
                     }
-                    // Fallback: hardcoded per category
                     if (product.categorySlug === "luxe-acid-wash") {
                       return (
                         <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
@@ -447,7 +530,6 @@ export default function ProductDetailPage() {
               {activeTab === "washcare" && (
                 <div>
                   {(() => {
-                    // Use DB washcare if available
                     const wc = product.washcare?.trim();
                     if (wc) {
                       const lines = wc
@@ -462,7 +544,6 @@ export default function ProductDetailPage() {
                         </ul>
                       );
                     }
-                    // Fallback: hardcoded per category
                     if (product.categorySlug === "luxe-acid-wash") {
                       return (
                         <ul className="list-disc pl-4 space-y-1.5 text-gray-500">
@@ -491,20 +572,20 @@ export default function ProductDetailPage() {
                   <div>
                     <p className="font-semibold text-black mb-1">Dispatch</p>
                     <p className="text-gray-500">
-                      Orders are processed and dispatched within <span className="font-medium text-gray-700">2–3 business days</span>. You'll receive a tracking link via email/SMS.
+                      Orders are processed and dispatched within <span className="font-medium text-gray-700">2–3 business days</span>. You&apos;ll receive a tracking link via email/SMS.
                     </p>
                   </div>
                   <div>
                     <p className="font-semibold text-black mb-1">Estimated Delivery</p>
                     <ul className="list-disc pl-4 space-y-1 text-gray-500">
-                      <li>Metro cities (Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Pune) — <span className="font-medium text-gray-700">2–5 days</span></li>
+                      <li>Metro cities — <span className="font-medium text-gray-700">2–5 days</span></li>
                       <li>Tier 2 & Tier 3 cities — <span className="font-medium text-gray-700">3–7 days</span></li>
-                      <li>Remote pin codes via India Post — <span className="font-medium text-gray-700">5–15 working days</span></li>
+                      <li>Remote pin codes — <span className="font-medium text-gray-700">5–15 working days</span></li>
                     </ul>
                   </div>
                   <div>
                     <p className="text-gray-500"><span className="font-medium text-gray-700">COD available</span> across most serviceable pin codes.</p>
-                    <p className="text-gray-500 mt-1">All orders are shipped free — no hidden charges at checkout.</p>
+                    <p className="text-gray-500 mt-1">All orders are shipped free — no hidden charges.</p>
                   </div>
                 </div>
               )}
@@ -531,10 +612,6 @@ export default function ProductDetailPage() {
     </div>
   );
 }
-
-/* ─────────────────────────────────────────── */
-/* Related Product Card (Compact Scroll Card)  */
-/* ─────────────────────────────────────────── */
 
 function RelatedCard({ product }: { product: Product }) {
   const [imgErr, setImgErr] = useState(false);

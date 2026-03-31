@@ -31,7 +31,7 @@ export default function CollectionsGrid({ categories }: Props) {
           return (
             <Link
               key={collection.id}
-              href={`/?category=${collection.slug}`}
+              href={`/category/${collection.slug}`}
               className={`group relative overflow-hidden rounded-2xl ${
                 i === 0 && collections.length % 2 !== 0
                   ? "md:col-span-2 aspect-[2/1]"
