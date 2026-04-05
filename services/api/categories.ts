@@ -9,12 +9,12 @@ export async function getCategories(): Promise<Category[]> {
     },
     {
       id: "1",
-      name: "Oversized Terry Cotton",
+      name: "Oversized Terry",
       slug: "oversized-terry"
     },
     {
       id: "2",
-      name: "Luxe Acid Washed",
+      name: "Luxe Acidwashed",
       slug: "luxe-acid-wash"
     }
   ];

@@ -11,8 +11,8 @@ import { type Category } from "@/types/category";
 
 const CATEGORY_NAMES: Record<string, string> = {
   "best-sellers": "Best Sellers",
-  "oversized-terry": "Oversized Terry Cotton",
-  "luxe-acid-wash": "Luxe Acid Wash",
+  "oversized-terry": "Oversized Terry",
+  "luxe-acid-wash": "Luxe Acidwashed",
 };
 
 export default function CategoryPage() {

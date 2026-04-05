@@ -3,9 +3,20 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
+    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      console.error("Razorpay keys missing:", { keyId: !!keyId, keySecret: !!keySecret });
+      return NextResponse.json(
+        { error: "Payment gateway not configured. Please contact support." },
+        { status: 500 }
+      );
+    }
+
     const razorpay = new Razorpay({
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+      key_id: keyId,
+      key_secret: keySecret,
     });
 
     const body = await request.json();
