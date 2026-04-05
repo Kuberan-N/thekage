@@ -9,7 +9,7 @@ export default function HeroSection() {
       {/* Full-width hero — H1.jpg */}
       <Link href="/category/luxe-acid-wash" className="block absolute inset-0">
         <Image
-          src="/H1.jpg"
+          src="/hero.jpg"
           alt="THE KAGE — Luxe Acidwashed Collection"
           fill
           priority
