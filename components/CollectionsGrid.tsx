@@ -9,8 +9,8 @@ type Props = {
 };
 
 const COLLECTION_IMAGES: Record<string, string> = {
-  "oversized-terry": "/collection-oversized.png",
-  "luxe-acid-wash": "/collection-acidwash.png",
+  "oversized-terry": "/terry.png",
+  "luxe-acid-wash": "/acidwashed.png",
 };
 
 // Light neutral bg to match product-shot backgrounds

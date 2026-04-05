@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -35,16 +34,11 @@ export default function Navbar() {
             </svg>
           </button>
 
-          {/* Center: Brand Logo */}
+          {/* Center: Brand Logo — clean text, no background */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            <Image
-              src="/logo.png"
-              alt="THE KAGE"
-              width={140}
-              height={40}
-              className="h-9 w-auto object-contain"
-              priority
-            />
+            <span className="text-[18px] md:text-[20px] font-black tracking-[0.25em] uppercase text-black select-none">
+              THE KAGE
+            </span>
           </Link>
 
           {/* Right Icons */}
@@ -102,13 +96,9 @@ export default function Navbar() {
       {menuOpen && (
         <div className="fixed inset-0 z-[100] bg-white flex flex-col">
           <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100">
-            <Image
-              src="/logo.png"
-              alt="THE KAGE"
-              width={120}
-              height={34}
-              className="h-8 w-auto object-contain"
-            />
+            <span className="text-[18px] font-black tracking-[0.25em] uppercase text-black select-none">
+              THE KAGE
+            </span>
             <button
               onClick={() => setMenuOpen(false)}
               className="w-9 h-9 flex items-center justify-center hover:opacity-60 transition-opacity"
